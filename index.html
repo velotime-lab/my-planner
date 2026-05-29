@@ -34,7 +34,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue"
 .notap{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .grip{touch-action:none;cursor:grab;user-select:none}
 .grip:active{cursor:grabbing}
-canvas#dc{touch-action:none;image-rendering:auto}
+canvas#dc{touch-action:none;image-rendering:auto;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 input[type="text"],input[type="password"]{font-size:16px;background:transparent;color:var(--txt);border:none;outline:none;width:100%}
 textarea.fi-area{font-family:inherit;font-size:14px;background:transparent;color:var(--txt);border:none;outline:none;width:100%;resize:none;overflow:hidden;min-height:26px;line-height:1.35;padding:2px 3px;border-radius:5px}
 textarea.fi-area:focus{background:rgba(0,122,255,0.06)}
@@ -160,7 +160,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:.4;cursor:pointer}
 <div style="width:1px;height:18px;background:var(--bdr);margin:0 2px"></div>
 <button onclick="CV.clear()" class="h-6 px-2 rounded-lg text-[11px] notap" style="background:var(--card2);color:var(--mut)">Очистить</button>
 </div></div>
-<canvas id="dc" width="1200" height="500" class="w-full rounded-xl" style="border:1px solid var(--bdr);background:#fff;cursor:crosshair"></canvas>
+<canvas id="dc" width="1200" height="1200" class="w-full rounded-xl" style="border:1px solid var(--bdr);background:#fff;cursor:crosshair"></canvas>
 </div></div>
 </div>
 
@@ -386,14 +386,36 @@ var Drag={active:0,data:null,startY:0,clone:null,row:null,scroller:null,
 
 /* CANVAS */
 var CV={el:null,ctx:null,on:0,color:"#1c1c1e",size:3,eraser:0,lx:0,ly:0,
-  init:function(){this.el=document.getElementById("dc");this.ctx=this.el.getContext("2d");this.ctx.lineJoin="round";this.ctx.lineCap="round";var s=this;this.el.addEventListener("pointerdown",function(e){s.d(e)},{passive:false});this.el.addEventListener("pointermove",function(e){s.m(e)},{passive:false});this.el.addEventListener("pointerup",function(){s.u()},{passive:false});this.el.addEventListener("pointercancel",function(){s.u()},{passive:false});this.el.addEventListener("contextmenu",function(e){e.preventDefault()});this.ui()},
+  init:function(){
+    this.el=document.getElementById("dc");
+    this.ctx=this.el.getContext("2d",{willReadFrequently:true});
+    this.ctx.lineJoin="round";this.ctx.lineCap="round";
+    var s=this;
+    /* PointerEvents for drawing */
+    this.el.addEventListener("pointerdown",function(e){e.preventDefault();s.d(e)},{passive:false});
+    this.el.addEventListener("pointermove",function(e){e.preventDefault();s.m(e)},{passive:false});
+    this.el.addEventListener("pointerup",function(){s.u()},{passive:false});
+    this.el.addEventListener("pointercancel",function(){s.u()},{passive:false});
+    /* Block iOS Scribble / Select All / long-press menu */
+    this.el.addEventListener("touchstart",function(e){e.preventDefault()},{passive:false});
+    this.el.addEventListener("touchend",function(e){e.preventDefault()},{passive:false});
+    this.el.addEventListener("contextmenu",function(e){e.preventDefault()});
+    this.el.addEventListener("selectstart",function(e){e.preventDefault()});
+    this.el.addEventListener("gesturestart",function(e){e.preventDefault()});
+    this.el.addEventListener("gesturechange",function(e){e.preventDefault()});
+    this.el.addEventListener("gestureend",function(e){e.preventDefault()});
+    /* Suppress iOS double-tap zoom */
+    var lastTap=0;
+    this.el.addEventListener("touchend",function(e){var now=Date.now();if(now-lastTap<300)e.preventDefault();lastTap=now},{passive:false});
+    this.ui();
+  },
   xy:function(e){var r=this.el.getBoundingClientRect();return{x:(e.clientX-r.left)*(this.el.width/r.width),y:(e.clientY-r.top)*(this.el.height/r.height)}},
   d:function(e){e.preventDefault();this.on=1;var p=this.xy(e);this.lx=p.x;this.ly=p.y;this.ctx.beginPath();this.ctx.arc(p.x,p.y,this.eraser?this.size*2.5:this.size/2,0,Math.PI*2);if(this.eraser){this.ctx.save();this.ctx.globalCompositeOperation="destination-out";this.ctx.fillStyle="rgba(0,0,0,1)";this.ctx.fill();this.ctx.restore()}else{this.ctx.fillStyle=this.color;this.ctx.fill()}},
   m:function(e){if(!this.on)return;e.preventDefault();var p=this.xy(e);this.ctx.beginPath();this.ctx.moveTo(this.lx,this.ly);this.ctx.lineTo(p.x,p.y);if(this.eraser){this.ctx.save();this.ctx.globalCompositeOperation="destination-out";this.ctx.strokeStyle="rgba(0,0,0,1)";this.ctx.lineWidth=this.size*5;this.ctx.stroke();this.ctx.restore()}else{this.ctx.strokeStyle=this.color;this.ctx.lineWidth=this.size;this.ctx.stroke()}this.lx=p.x;this.ly=p.y},
   u:function(){if(!this.on)return;this.on=0;this.save();lsSave()},
   load:function(){if(!this.el)return;var w=getWeek(curK());this.ctx.clearRect(0,0,this.el.width,this.el.height);this.ctx.fillStyle="#fff";this.ctx.fillRect(0,0,this.el.width,this.el.height);if(w.drawing){var img=new Image(),ctx=this.ctx;img.onload=function(){ctx.drawImage(img,0,0)};img.src=w.drawing}},
   save:function(){if(!this.el)return;getWeek(curK()).drawing=this.el.toDataURL("image/png")},
-  clear:function(){if(!this.el)return;this.ctx.clearRect(0,0,this.el.width,this.el.height);this.ctx.fillStyle="#fff";this.ctx.fillRect(0,0,this.el.width,this.el.height);this.save();lsSave()},
+  clear:function(){if(!this.el)return;if(!confirm("Очистить рисунок этой недели?"))return;this.ctx.clearRect(0,0,this.el.width,this.el.height);this.ctx.fillStyle="#fff";this.ctx.fillRect(0,0,this.el.width,this.el.height);this.save();lsSave()},
   setBrush:function(c){this.color=c;this.eraser=0;this.ui()},
   setSize:function(s){this.size=s;this.ui()},
   toggleEraser:function(){this.eraser=this.eraser?0:1;this.ui()},
