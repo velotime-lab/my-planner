@@ -36,8 +36,6 @@ body{
   background-image:repeating-linear-gradient(0deg,var(--ln),var(--ln) 1px,transparent 1px,transparent 28px);
   color:var(--txt);-webkit-font-smoothing:antialiased;min-height:100vh;
 }
-@keyframes synk{0%,100%{opacity:.45}50%{opacity:1}}
-.sync-a{animation:synk 1.1s infinite}
 .notap{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .grip{touch-action:none;cursor:grab;user-select:none}
 .grip:active{cursor:grabbing}
@@ -48,15 +46,6 @@ textarea.fi-area:focus{background:rgba(0,122,255,0.06)}
 input[type="date"]{font-size:13px;background:transparent;color:var(--mut);border:none;outline:none;width:100%;opacity:.7}
 input[type="date"]::-webkit-calendar-picker-indicator{opacity:.4;cursor:pointer}
 @media(prefers-color-scheme:dark){input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.3}}
-/* login */
-#login-screen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:var(--bg)}
-#login-screen .lcard{width:100%;max-width:340px;padding:32px;border-radius:20px;background:var(--card);border:1px solid var(--bdr);box-shadow:0 8px 40px rgba(0,0,0,0.1)}
-#login-screen input{width:100%;padding:10px 14px;border-radius:12px;border:1.5px solid var(--bdr);background:var(--card2);color:var(--txt);font-size:16px;margin-bottom:12px}
-#login-screen input:focus{border-color:var(--acc);outline:none}
-#login-screen button{width:100%;padding:12px;border-radius:12px;border:none;background:var(--grn);color:#fff;font-size:16px;font-weight:600;cursor:pointer}
-#login-screen button:hover{opacity:.9}
-.lerr{color:#dc2626;font-size:13px;text-align:center;margin-top:8px;min-height:20px}
-/* day toggle */
 .dtb{display:flex;align-items:center;gap:3px}
 .dtb-btn{height:28px;min-width:36px;padding:0 5px;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:all .12s;border:1.5px solid var(--bdr);background:var(--card);font-size:9px}
 .dtb-btn .dn{font-weight:600;color:var(--mut);line-height:1}
@@ -105,41 +94,6 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:.4;cursor:pointer}
 </head>
 <body class="select-none">
 
-<!-- ====== LOGIN SCREEN ====== -->
-<div id="login-screen">
-<div class="lcard">
-<div style="text-align:center;margin-bottom:20px">
-<div style="font-size:42px;margin-bottom:8px">📋</div>
-<div style="font-size:18px;font-weight:700">Планер</div>
-<div style="font-size:13px;color:var(--mut);margin-top:4px">Введите логин и пароль</div>
-</div>
-<input id="luser" type="text" placeholder="Логин" autocomplete="username">
-<input id="lpass" type="password" placeholder="Пароль" autocomplete="current-password">
-<button onclick="doLogin()">Войти</button>
-<div id="lerr" class="lerr"></div>
-</div>
-</div>
-
-<div id="main-app" class="hidden">
-
-<div id="sy" class="hidden fixed top-3 right-3 z-[100] px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 sync-a" style="background:var(--card);border:1px solid var(--bdr);box-shadow:var(--shd)">
-<svg class="w-3.5 h-3.5 opacity-60 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-<span id="syt">Синхронизация…</span>
-</div>
-
-<!-- Settings -->
-<div id="spanel" class="hidden fixed inset-0 z-[95] flex items-center justify-center p-4" style="background:rgba(0,0,0,0.3);backdrop-filter:blur(8px)" onclick="if(event.target===this)UI.toggleSettings()">
-<div class="w-full max-w-md rounded-2xl p-5 space-y-3" style="background:var(--card);border:1px solid var(--bdr)" onclick="event.stopPropagation()">
-<div class="flex justify-between items-center"><h2 class="text-lg font-bold">⚙️ Настройки</h2><button onclick="UI.toggleSettings()" class="text-2xl opacity-40 hover:opacity-80 notap" style="line-height:1">&times;</button></div>
-<p class="text-xs" style="color:var(--mut)">Подключите GitHub для синхронизации между устройствами.</p>
-<div><label class="block text-xs font-semibold mb-1" style="color:var(--mut)">GITHUB TOKEN</label><input id="st" type="password" class="w-full rounded-xl px-3 py-2 text-sm" style="border:1px solid var(--bdr)" placeholder="ghp_..."></div>
-<div><label class="block text-xs font-semibold mb-1" style="color:var(--mut)">ВЛАДЕЛЕЦ</label><input id="so" type="text" class="w-full rounded-xl px-3 py-2 text-sm" style="border:1px solid var(--bdr)" placeholder="username"></div>
-<div><label class="block text-xs font-semibold mb-1" style="color:var(--mut)">РЕПОЗИТОРИЙ</label><input id="sr" type="text" class="w-full rounded-xl px-3 py-2 text-sm" style="border:1px solid var(--bdr)" placeholder="my-planner"></div>
-<div><label class="block text-xs font-semibold mb-1" style="color:var(--mut)">ПУТЬ К ФАЙЛУ</label><input id="sp" type="text" class="w-full rounded-xl px-3 py-2 text-sm" style="border:1px solid var(--bdr)" placeholder="data.json"></div>
-<button onclick="UI.saveSettings()" class="w-full py-2.5 rounded-xl text-white font-semibold text-sm notap" style="background:var(--grn)">Сохранить</button>
-<div id="sst" class="text-xs text-center" style="color:var(--mut)"></div>
-</div></div>
-
 <!-- CSV Modal -->
 <div id="csv-panel" class="hidden fixed inset-0 z-[95] flex items-center justify-center p-4" style="background:rgba(0,0,0,0.3);backdrop-filter:blur(8px)" onclick="if(event.target===this)this.classList.add('hidden')">
 <div class="w-full max-w-lg rounded-2xl p-5 space-y-3" style="background:var(--card);border:1px solid var(--bdr)" onclick="event.stopPropagation()">
@@ -158,7 +112,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:.4;cursor:pointer}
 <div id="app" class="max-w-[1400px] mx-auto px-2 pb-8 sm:px-4">
 
 <!-- Navigation -->
-<div class="flex flex-col items-center gap-2 mb-5">
+<div class="flex flex-col items-center gap-2 mb-5 pt-3">
 <div class="flex items-center gap-1.5 flex-wrap justify-center">
 <button onclick="App.prevWeek()" class="nb notap"><svg class="w-4 h-4 inline" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg><span class="hidden sm:inline"> Прошлая</span></button>
 <div class="text-center px-2 min-w-[140px]"><div id="nm" class="text-[11px] uppercase tracking-widest font-semibold" style="color:var(--mut)"></div><div id="nd" class="text-sm font-bold"></div></div>
@@ -169,13 +123,9 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:.4;cursor:pointer}
 <div id="day-toggles" class="dtb"></div>
 <button onclick="App.toggleCanvas()" id="canvas-btn" class="nb notap" title="Рисунок">🎨</button>
 <button onclick="document.getElementById('csv-panel').classList.remove('hidden');CSV.refreshTargets()" class="nb notap" title="CSV">📊</button>
-<button onclick="JSONio.exportFile()" class="nb notap" title="Экспорт JSON">💾</button>
-<button onclick="document.getElementById('json-file').click()" class="nb notap" title="Импорт JSON">📂</button>
+<button onclick="JSONio.exportFile()" class="nb notap" title="Скачать JSON">💾</button>
+<button onclick="document.getElementById('json-file').click()" class="nb notap" title="Загрузить JSON">📂</button>
 <input type="file" id="json-file" accept=".json" class="hidden" onchange="JSONio.importFile(this)">
-</div>
-<div class="flex items-center gap-1.5">
-<button onclick="UI.toggleSettings()" class="nb notap text-sm" title="Настройки">⚙️</button>
-<button onclick="doLogout()" class="nb notap text-sm" title="Выйти">🔒</button>
 </div>
 </div>
 
@@ -201,34 +151,10 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:.4;cursor:pointer}
 </div></div>
 <canvas id="dc" width="1200" height="500" class="w-full rounded-xl" style="border:1px solid var(--bdr);background:#fff;cursor:crosshair"></canvas>
 </div></div>
-</div>
+
 </div>
 
 <script>
-/* ====== LOGIN ====== */
-var AUTH_USER="\u0412\u0430\u0441\u044f"; /* Вася */
-var AUTH_PASS="Pupkin1!";
-
-function doLogin(){
-  var u=document.getElementById("luser").value;
-  var p=document.getElementById("lpass").value;
-  if(u===AUTH_USER&&p===AUTH_PASS){
-    sessionStorage.setItem("planner_auth","1");
-    document.getElementById("login-screen").style.display="none";
-    document.getElementById("main-app").classList.remove("hidden");
-    startApp();
-  }else{
-    document.getElementById("lerr").textContent="Неверный логин или пароль";
-    document.getElementById("lpass").value="";
-  }
-}
-function doLogout(){
-  sessionStorage.removeItem("planner_auth");
-  location.reload();
-}
-document.getElementById("lpass").addEventListener("keydown",function(e){if(e.key==="Enter")doLogin()});
-document.getElementById("luser").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("lpass").focus()});
-
 /* ====== UTILS ====== */
 var uid=function(){return Date.now().toString(36)+Math.random().toString(36).slice(2,8)};
 function pad(n){return String(n).padStart(2,"0")}
@@ -247,9 +173,8 @@ function mkDays(){return[0,0,0,0,0,0,0]}
 
 /* ====== DATA ====== */
 var DATA={weeks:{}};
-var CFG={token:"",owner:"",repo:"",path:"data.json"};
 var curMon=getMonday(new Date());
-var ghSha=null,saveTmr=null,autoSaveTmr=null;
+var autoSaveTmr=null;
 
 function mkItem(t){return{id:uid(),days:mkDays(),by:"",ds:"",dd:"",text:t||"",note:"",color:""}}
 function defaultTO(){return["Полить цветы","Убрать квартиру","Закупить продукты","Оплатить счета","Проверить почту","Стирка","Вынести мусор"].map(function(t){return mkItem(t)})}
@@ -266,31 +191,20 @@ function migItem(it){
 }
 function migData(d){if(!d||!d.weeks)return;try{Object.values(d.weeks).forEach(function(w){if(w.to)w.to.forEach(migItem);if(w.blocks)w.blocks.forEach(function(b){if(b.items)b.items.forEach(migItem)})})}catch(e){}}
 
-/* ====== STORAGE ====== */
-function lsSave(){try{localStorage.setItem("planner_d",JSON.stringify(DATA));localStorage.setItem("planner_c",JSON.stringify(CFG));localStorage.setItem("planner_ad",JSON.stringify(activeDays));localStorage.setItem("planner_cv",showCanvasState?"1":"0")}catch(e){}}
-function lsLoad(){try{var d=localStorage.getItem("planner_d");if(d){var p=JSON.parse(d);if(p&&p.weeks)DATA=p}var c=localStorage.getItem("planner_c");if(c){var p2=JSON.parse(c);if(p2)CFG=p2}var ad=localStorage.getItem("planner_ad");if(ad){var a=JSON.parse(ad);if(a&&a.length===7)activeDays=a}showCanvasState=localStorage.getItem("planner_cv")==="1"}catch(e){}}
+/* ====== LOCAL STORAGE ====== */
+function lsSave(){try{localStorage.setItem("planner_d",JSON.stringify(DATA));localStorage.setItem("planner_ad",JSON.stringify(activeDays));localStorage.setItem("planner_cv",showCanvasState?"1":"0")}catch(e){}}
+function lsLoad(){try{var d=localStorage.getItem("planner_d");if(d){var p=JSON.parse(d);if(p&&p.weeks)DATA=p}var ad=localStorage.getItem("planner_ad");if(ad){var a=JSON.parse(ad);if(a&&a.length===7)activeDays=a}showCanvasState=localStorage.getItem("planner_cv")==="1"}catch(e){}}
 
-/* ====== GITHUB ====== */
-function ghH(){return{"Authorization":"token "+CFG.token,"Accept":"application/vnd.github.v3+json","Content-Type":"application/json"}}
-function ghU(){return"https://api.github.com/repos/"+CFG.owner+"/"+CFG.repo+"/contents/"+CFG.path}
-function showSync(m,err){var e=document.getElementById("sy"),t=document.getElementById("syt");t.textContent=m;e.classList.remove("hidden");e.style.background=err?"#991b1b":"var(--card)"}
-function hideSync(){document.getElementById("sy").classList.add("hidden")}
-function ghLoad(){if(!CFG.token||!CFG.owner||!CFG.repo)return Promise.resolve();showSync("Загрузка…");return fetch(ghU(),{headers:ghH()}).then(function(r){if(r.status===404){ghSha=null;hideSync();return}if(!r.ok)throw new Error("HTTP "+r.status);return r.json()}).then(function(j){if(!j)return;ghSha=j.sha;var c=JSON.parse(atob(j.content));if(c&&c.weeks){migData(c);DATA=c;lsSave();Render.all();CV.load()}hideSync()}).catch(function(e){console.warn("ghLoad",e);showSync("Ошибка загрузки",true);setTimeout(hideSync,2500)})}
-function ghSave(){if(!CFG.token||!CFG.owner||!CFG.repo)return;showSync("Сохранение…");var body={message:"Update "+new Date().toLocaleString("ru-RU"),content:btoa(unescape(encodeURIComponent(JSON.stringify(DATA))))};if(ghSha)body.sha=ghSha;fetch(ghU(),{method:"PUT",headers:ghH(),body:JSON.stringify(body)}).then(function(r){if(!r.ok){if(r.status===409||r.status===422){hideSync();return ghLoad()}throw new Error("HTTP "+r.status)}return r.json()}).then(function(j){if(j&&j.content)ghSha=j.content.sha;hideSync()}).catch(function(e){console.warn("ghSave",e);showSync("Ошибка сохранения",true);setTimeout(hideSync,2500)})}
-function schedSave(){lsSave();clearTimeout(saveTmr);saveTmr=setTimeout(ghSave,2500)}
-
-/* Periodic auto-save to localStorage every 15 sec */
-function startAutoSave(){autoSaveTmr=setInterval(function(){lsSave()},15000)}
+/* Periodic auto-save every 10 sec */
+function startAutoSave(){autoSaveTmr=setInterval(function(){lsSave()},10000)}
 
 /* ====== JSON IMPORT/EXPORT ====== */
 var JSONio={
   exportFile:function(){
     var json=JSON.stringify(DATA,null,2);
     var blob=new Blob([json],{type:"application/json"});
-    var a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="planner_backup_"+todayStr()+".json";
-    a.click();
+    var a=document.createElement("a");a.href=URL.createObjectURL(blob);
+    a.download="planner_backup_"+todayStr()+".json";a.click();
   },
   importFile:function(input){
     var file=input.files[0];if(!file)return;
@@ -300,14 +214,12 @@ var JSONio={
         var imported=JSON.parse(e.target.result);
         if(!imported||!imported.weeks){alert("Файл не содержит данных планера");return}
         migData(imported);
-        /* Merge: add imported weeks, overwrite existing */
         Object.keys(imported.weeks).forEach(function(k){DATA.weeks[k]=imported.weeks[k]});
-        lsSave();Render.all();CV.load();schedSave();
+        lsSave();Render.all();CV.load();
         alert("Импортировано! Недель: "+Object.keys(DATA.weeks).length);
-      }catch(err){alert("Ошибка чтения файла: "+err.message)}
+      }catch(err){alert("Ошибка: "+err.message)}
     };
-    reader.readAsText(file);
-    input.value="";
+    reader.readAsText(file);input.value="";
   }
 };
 
@@ -316,29 +228,30 @@ var App={
   prevWeek:function(){CV.save();curMon=new Date(curMon);curMon.setDate(curMon.getDate()-7);ensureWeek(curK());Render.all();CV.load()},
   nextWeek:function(){CV.save();curMon=new Date(curMon);curMon.setDate(curMon.getDate()+7);ensureWeek(curK());Render.all();CV.load()},
   goToday:function(){CV.save();curMon=getMonday(new Date());ensureWeek(curK());Render.all();CV.load()},
-  toggleDayVis:function(i){activeDays[i]=!activeDays[i];Render.all();schedSave()},
+  toggleDayVis:function(i){activeDays[i]=!activeDays[i];Render.all();lsSave()},
   toggleCanvas:function(){
     showCanvasState=!showCanvasState;
     var cw=document.getElementById("canvas-wrap"),btn=document.getElementById("canvas-btn");
     if(showCanvasState){cw.classList.remove("hidden");btn.classList.add("active")}
     else{cw.classList.add("hidden");btn.classList.remove("active")}
+    lsSave();
   },
-  addBlock:function(){var w=getWeek(curK());w.blocks.push({id:uid(),title:"Новый блок",collapsed:false,items:[]});Render.blocks();schedSave()},
-  delBlock:function(id){var w=getWeek(curK());w.blocks=w.blocks.filter(function(b){return b.id!==id});Render.blocks();schedSave()},
-  renameBlock:function(id,v){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===id});if(b)b.title=v;schedSave()},
-  toggleCollapse:function(id){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===id});if(b)b.collapsed=!b.collapsed;Render.blocks();schedSave()},
-  addTOItem:function(){var w=getWeek(curK());w.to.push(mkItem(""));Render.to();schedSave();setTimeout(function(){var rows=document.querySelectorAll("#to .trow");if(rows.length){var last=rows[rows.length-1];var inp=last.querySelector("[data-f=text]");if(inp)inp.focus()}},80)},
-  delTO:function(id){var w=getWeek(curK());w.to=w.to.filter(function(x){return x.id!==id});Render.to();schedSave()},
-  toggleTO:function(id,di){var w=getWeek(curK()),it=w.to.find(function(x){return x.id===id});if(it)it.days[di]=it.days[di]?0:1;Render.to();schedSave()},
-  editTO:function(id,f,v){var w=getWeek(curK()),it=w.to.find(function(x){return x.id===id});if(!it)return;it[f]=v;if(f==="text"&&v&&!it.ds)it.ds=todayStr();schedSave()},
-  forwardTO:function(id){var w=getWeek(curK()),it=w.to.find(function(x){return x.id===id});if(!it)return;var nm=new Date(curMon);nm.setDate(nm.getDate()+7);var nw=ensureWeek(wKey(nm));nw.to.push(JSON.parse(JSON.stringify(Object.assign({},it,{id:uid(),days:mkDays()}))));schedSave();showSync("Перенесено ✅");setTimeout(hideSync,1500)},
-  setTOColor:function(id,c){var w=getWeek(curK()),it=w.to.find(function(x){return x.id===id});if(!it)return;it.color=(it.color===c)?"":c;Render.to();schedSave()},
-  addItem:function(bid){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===bid});if(!b)return;b.items.push(mkItem(""));Render.blocks();schedSave();setTimeout(function(){var rows=document.querySelectorAll('[data-bid="'+bid+'"] .trow');if(rows.length){var last=rows[rows.length-1];var inp=last.querySelector("[data-f=text]");if(inp)inp.focus()}},80)},
-  delItem:function(bid,id){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===bid});if(!b)return;b.items=b.items.filter(function(x){return x.id!==id});Render.blocks();schedSave()},
-  toggleDay:function(bid,id,di){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===bid});if(!b)return;var it=b.items.find(function(x){return x.id===id});if(it)it.days[di]=it.days[di]?0:1;Render.blocks();schedSave()},
-  editItem:function(bid,id,f,v){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===bid});if(!b)return;var it=b.items.find(function(x){return x.id===id});if(!it)return;it[f]=v;if(f==="text"&&v&&!it.ds)it.ds=todayStr();schedSave()},
-  forwardItem:function(bid,id){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===bid});if(!b)return;var it=b.items.find(function(x){return x.id===id});if(!it)return;var nm=new Date(curMon);nm.setDate(nm.getDate()+7);var nw=ensureWeek(wKey(nm));var fb=nw.blocks.find(function(x){return x.title==="\u2B95 Перенесённые"});if(!fb){fb={id:uid(),title:"\u2B95 Перенесённые",collapsed:false,items:[]};nw.blocks.unshift(fb)}fb.items.push(JSON.parse(JSON.stringify(Object.assign({},it,{id:uid(),days:mkDays()}))));schedSave();showSync("Перенесено ✅");setTimeout(hideSync,1500)},
-  setItemColor:function(bid,id,c){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===bid});if(!b)return;var it=b.items.find(function(x){return x.id===id});if(!it)return;it.color=(it.color===c)?"":c;Render.blocks();schedSave()}
+  addBlock:function(){var w=getWeek(curK());w.blocks.push({id:uid(),title:"Новый блок",collapsed:false,items:[]});Render.blocks();lsSave()},
+  delBlock:function(id){var w=getWeek(curK());w.blocks=w.blocks.filter(function(b){return b.id!==id});Render.blocks();lsSave()},
+  renameBlock:function(id,v){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===id});if(b)b.title=v;lsSave()},
+  toggleCollapse:function(id){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===id});if(b)b.collapsed=!b.collapsed;Render.blocks();lsSave()},
+  addTOItem:function(){var w=getWeek(curK());w.to.push(mkItem(""));Render.to();lsSave();setTimeout(function(){var rows=document.querySelectorAll("#to .trow");if(rows.length){var last=rows[rows.length-1];var inp=last.querySelector("[data-f=text]");if(inp)inp.focus()}},80)},
+  delTO:function(id){var w=getWeek(curK());w.to=w.to.filter(function(x){return x.id!==id});Render.to();lsSave()},
+  toggleTO:function(id,di){var w=getWeek(curK()),it=w.to.find(function(x){return x.id===id});if(it)it.days[di]=it.days[di]?0:1;Render.to();lsSave()},
+  editTO:function(id,f,v){var w=getWeek(curK()),it=w.to.find(function(x){return x.id===id});if(!it)return;it[f]=v;if(f==="text"&&v&&!it.ds)it.ds=todayStr();lsSave()},
+  forwardTO:function(id){var w=getWeek(curK()),it=w.to.find(function(x){return x.id===id});if(!it)return;var nm=new Date(curMon);nm.setDate(nm.getDate()+7);var nw=ensureWeek(wKey(nm));nw.to.push(JSON.parse(JSON.stringify(Object.assign({},it,{id:uid(),days:mkDays()}))));lsSave()},
+  setTOColor:function(id,c){var w=getWeek(curK()),it=w.to.find(function(x){return x.id===id});if(!it)return;it.color=(it.color===c)?"":c;Render.to();lsSave()},
+  addItem:function(bid){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===bid});if(!b)return;b.items.push(mkItem(""));Render.blocks();lsSave();setTimeout(function(){var rows=document.querySelectorAll('[data-bid="'+bid+'"] .trow');if(rows.length){var last=rows[rows.length-1];var inp=last.querySelector("[data-f=text]");if(inp)inp.focus()}},80)},
+  delItem:function(bid,id){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===bid});if(!b)return;b.items=b.items.filter(function(x){return x.id!==id});Render.blocks();lsSave()},
+  toggleDay:function(bid,id,di){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===bid});if(!b)return;var it=b.items.find(function(x){return x.id===id});if(it)it.days[di]=it.days[di]?0:1;Render.blocks();lsSave()},
+  editItem:function(bid,id,f,v){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===bid});if(!b)return;var it=b.items.find(function(x){return x.id===id});if(!it)return;it[f]=v;if(f==="text"&&v&&!it.ds)it.ds=todayStr();lsSave()},
+  forwardItem:function(bid,id){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===bid});if(!b)return;var it=b.items.find(function(x){return x.id===id});if(!it)return;var nm=new Date(curMon);nm.setDate(nm.getDate()+7);var nw=ensureWeek(wKey(nm));var fb=nw.blocks.find(function(x){return x.title==="\u2B95 Перенесённые"});if(!fb){fb={id:uid(),title:"\u2B95 Перенесённые",collapsed:false,items:[]};nw.blocks.unshift(fb)}fb.items.push(JSON.parse(JSON.stringify(Object.assign({},it,{id:uid(),days:mkDays()}))));lsSave()},
+  setItemColor:function(bid,id,c){var w=getWeek(curK()),b=w.blocks.find(function(x){return x.id===bid});if(!b)return;var it=b.items.find(function(x){return x.id===id});if(!it)return;it.color=(it.color===c)?"":c;Render.blocks();lsSave()}
 };
 
 /* ====== EVENTS ====== */
@@ -361,7 +274,7 @@ function autoSizeAll(){var tas=document.querySelectorAll("textarea.fi-area");for
 var CSV={
   refreshTargets:function(){var sel=document.getElementById("csv-target"),w=getWeek(curK());sel.innerHTML='<option value="to">\u2192 Чек-листы</option>';for(var i=0;i<w.blocks.length;i++)sel.innerHTML+='<option value="'+w.blocks[i].id+'">\u2192 '+esc(w.blocks[i].title)+'</option>'},
   downloadTemplate:function(){var csv="Описание,Кто,Дата пост.,Дата вып.,Примечание\nЗадача 1,Иван,2025-06-15,,каждый понедельник\nЗадача 2,Мария,,2025-06-20,срочно\n";var blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="planner_template.csv";a.click()},
-  import:function(){var raw=document.getElementById("csv-input").value;if(!raw.trim()){document.getElementById("csv-status").textContent="Вставьте CSV";return}var target=document.getElementById("csv-target").value;var lines=raw.split("\n").map(function(l){return l.split(",").map(function(c){return c.trim()})});var start=0;if(lines.length>0&&lines[0][0]&&lines[0][0].match(/описание/i))start=1;var items=[];for(var i=start;i<lines.length;i++){var l=lines[i];if(!l||!l[0])continue;items.push(mkItem(l[0]||""));var it=items[items.length-1];it.by=l[1]||"";it.ds=l[2]||"";it.dd=l[3]||"";it.note=l[4]||"";if(it.text&&!it.ds)it.ds=todayStr()}var w=getWeek(curK());if(target==="to")w.to=w.to.concat(items);else{var b=w.blocks.find(function(x){return x.id===target});if(b)b.items=b.items.concat(items)}Render.all();schedSave();document.getElementById("csv-status").textContent="Импортировано "+items.length+" строк ✅";document.getElementById("csv-input").value=""}
+  import:function(){var raw=document.getElementById("csv-input").value;if(!raw.trim()){document.getElementById("csv-status").textContent="Вставьте CSV";return}var target=document.getElementById("csv-target").value;var lines=raw.split("\n").map(function(l){return l.split(",").map(function(c){return c.trim()})});var start=0;if(lines.length>0&&lines[0][0]&&lines[0][0].match(/описание/i))start=1;var items=[];for(var i=start;i<lines.length;i++){var l=lines[i];if(!l||!l[0])continue;items.push(mkItem(l[0]||""));var it=items[items.length-1];it.by=l[1]||"";it.ds=l[2]||"";it.dd=l[3]||"";it.note=l[4]||"";if(it.text&&!it.ds)it.ds=todayStr()}var w=getWeek(curK());if(target==="to")w.to=w.to.concat(items);else{var b=w.blocks.find(function(x){return x.id===target});if(b)b.items=b.items.concat(items)}Render.all();lsSave();document.getElementById("csv-status").textContent="Импортировано "+items.length+" строк ✅";document.getElementById("csv-input").value=""}
 };
 
 /* ====== RENDER ====== */
@@ -426,7 +339,7 @@ var Render={
 var Drag={active:false,data:null,startY:0,clone:null,row:null,scroller:null,
   start:function(e){if(e.button&&e.button!==0)return;e.preventDefault();var row=e.target.closest(".trow");if(!row)return;Drag.row=row;Drag.startY=e.clientY;var rect=row.getBoundingClientRect();Drag.data={iid:row.dataset.iid,bid:row.dataset.bid,isto:row.dataset.isto==="1",offY:e.clientY-rect.top,targetIid:null,before:true};document.addEventListener("pointermove",Drag._move);document.addEventListener("pointerup",Drag._end);document.addEventListener("pointercancel",Drag._end)},
   _move:function(e){if(!Drag.active){if(Math.abs(e.clientY-Drag.startY)<5)return;Drag.active=true;Drag.row.classList.add("dragging");var rect=Drag.row.getBoundingClientRect();var cl=Drag.row.cloneNode(true);cl.style.cssText="position:fixed;left:"+rect.left+"px;top:"+(e.clientY-Drag.data.offY)+"px;width:"+rect.width+"px;z-index:9999;opacity:0.9;pointer-events:none;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,0.2)";document.body.appendChild(cl);Drag.clone=cl}Drag.clone.style.top=(e.clientY-Drag.data.offY)+"px";Drag._clearLines();var container=Drag.row.parentElement,rows=[].slice.call(container.querySelectorAll(".trow")),found=false;for(var i=0;i<rows.length;i++){var r=rows[i];if(r===Drag.row||r.classList.contains("dragging"))continue;var rc=r.getBoundingClientRect();if(e.clientY<rc.top+rc.height/2){var ln=document.createElement("div");ln.className="drop-ind";r.before(ln);Drag.data.targetIid=r.dataset.iid;Drag.data.before=true;found=true;break}}if(!found&&rows.length){var last=rows.filter(function(r){return r!==Drag.row}).pop();if(last){var ln2=document.createElement("div");ln2.className="drop-ind";last.after(ln2);Drag.data.targetIid=last.dataset.iid;Drag.data.before=false}}if(e.clientY<60)Drag._scroll(-8);else if(e.clientY>window.innerHeight-60)Drag._scroll(8);else Drag._stopScroll()},
-  _end:function(){document.removeEventListener("pointermove",Drag._move);document.removeEventListener("pointerup",Drag._end);document.removeEventListener("pointercancel",Drag._end);Drag._stopScroll();if(Drag.active){if(Drag.data.targetIid)Drag._reorder();if(Drag.clone)Drag.clone.remove();if(Drag.row)Drag.row.classList.remove("dragging");Drag._clearLines();Render.all();schedSave()}Drag.active=false;Drag.row=null;Drag.clone=null},
+  _end:function(){document.removeEventListener("pointermove",Drag._move);document.removeEventListener("pointerup",Drag._end);document.removeEventListener("pointercancel",Drag._end);Drag._stopScroll();if(Drag.active){if(Drag.data.targetIid)Drag._reorder();if(Drag.clone)Drag.clone.remove();if(Drag.row)Drag.row.classList.remove("dragging");Drag._clearLines();Render.all();lsSave()}Drag.active=false;Drag.row=null;Drag.clone=null},
   _reorder:function(){var w=getWeek(curK());var items=Drag.data.isto?w.to:(w.blocks.find(function(b){return b.id===Drag.data.bid})||{}).items;if(!items)return;var si=-1;for(var i=0;i<items.length;i++){if(items[i].id===Drag.data.iid){si=i;break}}if(si===-1)return;var el=items.splice(si,1)[0];var ti=-1;for(var j=0;j<items.length;j++){if(items[j].id===Drag.data.targetIid){ti=j;break}}if(ti===-1)ti=items.length;else if(!Drag.data.before)ti++;items.splice(ti,0,el)},
   _clearLines:function(){var els=document.querySelectorAll(".drop-ind");for(var i=0;i<els.length;i++)els[i].remove()},
   _scroll:function(d){Drag._stopScroll();Drag.scroller=setInterval(function(){window.scrollBy(0,d)},16)},
@@ -439,27 +352,21 @@ var CV={el:null,ctx:null,on:false,color:"#1c1c1e",size:3,eraser:false,lx:0,ly:0,
   xy:function(e){var r=this.el.getBoundingClientRect();return{x:(e.clientX-r.left)*(this.el.width/r.width),y:(e.clientY-r.top)*(this.el.height/r.height)}},
   down:function(e){e.preventDefault();this.on=true;var p=this.xy(e);this.lx=p.x;this.ly=p.y;this.ctx.beginPath();this.ctx.arc(p.x,p.y,this.eraser?this.size*2.5:this.size/2,0,Math.PI*2);if(this.eraser){this.ctx.save();this.ctx.globalCompositeOperation="destination-out";this.ctx.fillStyle="rgba(0,0,0,1)";this.ctx.fill();this.ctx.restore()}else{this.ctx.fillStyle=this.color;this.ctx.fill()}},
   move:function(e){if(!this.on)return;e.preventDefault();var p=this.xy(e);this.ctx.beginPath();this.ctx.moveTo(this.lx,this.ly);this.ctx.lineTo(p.x,p.y);if(this.eraser){this.ctx.save();this.ctx.globalCompositeOperation="destination-out";this.ctx.strokeStyle="rgba(0,0,0,1)";this.ctx.lineWidth=this.size*5;this.ctx.stroke();this.ctx.restore()}else{this.ctx.strokeStyle=this.color;this.ctx.lineWidth=this.size;this.ctx.stroke()}this.lx=p.x;this.ly=p.y},
-  up:function(){if(!this.on)return;this.on=false;this.save();schedSave()},
+  up:function(){if(!this.on)return;this.on=false;this.save();lsSave()},
   load:function(){if(!this.el)return;var w=getWeek(curK());this.ctx.clearRect(0,0,this.el.width,this.el.height);this.ctx.fillStyle="#fff";this.ctx.fillRect(0,0,this.el.width,this.el.height);if(w.drawing){var img=new Image();var ctx=this.ctx;img.onload=function(){ctx.drawImage(img,0,0)};img.src=w.drawing}},
   save:function(){if(!this.el)return;getWeek(curK()).drawing=this.el.toDataURL("image/png")},
-  clear:function(){if(!this.el)return;this.ctx.clearRect(0,0,this.el.width,this.el.height);this.ctx.fillStyle="#fff";this.ctx.fillRect(0,0,this.el.width,this.el.height);this.save();schedSave()},
+  clear:function(){if(!this.el)return;this.ctx.clearRect(0,0,this.el.width,this.el.height);this.ctx.fillStyle="#fff";this.ctx.fillRect(0,0,this.el.width,this.el.height);this.save();lsSave()},
   setBrush:function(c){this.color=c;this.eraser=false;this.ui()},
   setSize:function(s){this.size=s;this.ui()},
   toggleEraser:function(){this.eraser=!this.eraser;this.ui()},
   ui:function(){var ids=["bb","br","blu","be"];for(var i=0;i<ids.length;i++){var e=document.getElementById(ids[i]);if(e){e.style.outline="none";e.style.outlineOffset="0"}}if(!this.eraser){var m={"#1c1c1e":"bb","#dc2626":"br","#2563eb":"blu"};var e=document.getElementById(m[this.color]);if(e)e.style.outline="2.5px solid var(--acc)"}else{var e2=document.getElementById("be");if(e2)e2.style.outline="2.5px solid var(--acc)"}var szs=["bs1","bs3","bs6","bs12"];for(var j=0;j<szs.length;j++){var se=document.getElementById(szs[j]);if(se)se.classList.remove("sel")}var sm={1:"bs1",3:"bs3",6:"bs6",12:"bs12"};var sc=document.getElementById(sm[this.size]);if(sc)sc.classList.add("sel");if(this.el)this.el.style.cursor=this.eraser?"cell":"crosshair"}
 };
 
-/* ====== UI ====== */
-var UI={
-  toggleSettings:function(){var p=document.getElementById("spanel");if(p.classList.contains("hidden")){document.getElementById("st").value=CFG.token;document.getElementById("so").value=CFG.owner;document.getElementById("sr").value=CFG.repo;document.getElementById("sp").value=CFG.path;p.classList.remove("hidden")}else p.classList.add("hidden")},
-  saveSettings:function(){CFG.token=(document.getElementById("st").value||"").trim();CFG.owner=(document.getElementById("so").value||"").trim();CFG.repo=(document.getElementById("sr").value||"").trim();CFG.path=(document.getElementById("sp").value||"data.json").trim();lsSave();document.getElementById("sst").textContent="Синхронизация…";ghLoad().then(function(){document.getElementById("sst").textContent="Готово ✅";setTimeout(function(){document.getElementById("sst").textContent=""},3000)})}
-};
-
 /* ====== PWA ====== */
-function setupPWA(){try{var ico="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#34c759"/><text x="50" y="70" font-size="50" text-anchor="middle" fill="#fff">📋</text></svg>');var mf={name:"Планер",short_name:"Планер",start_url:location.pathname,display:"standalone",background_color:"#f9f6f0",theme_color:"#34c759",icons:[{src:ico,sizes:"any",type:"image/svg+xml",purpose:"any"}]};var ml=document.createElement("link");ml.rel="manifest";ml.href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:"application/json"}));document.head.appendChild(ml);var il=document.createElement("link");il.rel="apple-touch-icon";il.href=ico;document.head.appendChild(il)}catch(e){}if("serviceWorker"in navigator){try{var sw='var C="pwa-v2";self.addEventListener("install",function(e){e.waitUntil(caches.open(C).then(function(c){return c.addAll(["/"])}).then(function(){return self.skipWaiting()}))});self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==C}).map(function(k){return caches.delete(k)}))}).then(function(){return self.clients.claim()}))});self.addEventListener("fetch",function(e){if(e.request.method!=="GET")return;e.respondWith(fetch(e.request).then(function(r){if(r&&r.status===200){var c=r.clone();caches.open(C).then(function(cache){cache.put(e.request,c)})}return r}).catch(function(){return caches.match(e.request)}))});';navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"application/javascript"}))).catch(function(){})}catch(e){}}}
+function setupPWA(){try{var ico="data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#34c759"/><text x="50" y="70" font-size="50" text-anchor="middle" fill="#fff">📋</text></svg>');var mf={name:"Планер",short_name:"Планер",start_url:location.pathname,display:"standalone",background_color:"#f9f6f0",theme_color:"#34c759",icons:[{src:ico,sizes:"any",type:"image/svg+xml",purpose:"any"}]};var ml=document.createElement("link");ml.rel="manifest";ml.href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:"application/json"}));document.head.appendChild(ml);var il=document.createElement("link");il.rel="apple-touch-icon";il.href=ico;document.head.appendChild(il)}catch(e){}if("serviceWorker"in navigator){try{var sw='var C="pwa-v3";self.addEventListener("install",function(e){e.waitUntil(caches.open(C).then(function(c){return c.addAll(["/"])}).then(function(){return self.skipWaiting()}))});self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==C}).map(function(k){return caches.delete(k)}))}).then(function(){return self.clients.claim()}))});self.addEventListener("fetch",function(e){if(e.request.method!=="GET")return;e.respondWith(fetch(e.request).then(function(r){if(r&&r.status===200){var c=r.clone();caches.open(C).then(function(cache){cache.put(e.request,c)})}return r}).catch(function(){return caches.match(e.request)}))});';navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:"application/javascript"}))).catch(function(){})}catch(e){}}}
 
-/* ====== APP START ====== */
-function startApp(){
+/* ====== INIT ====== */
+function init(){
   try{
     setupPWA();lsLoad();migData(DATA);ensureWeek(curK());
     var cw=document.getElementById("canvas-wrap"),cbtn=document.getElementById("canvas-btn");
@@ -467,22 +374,9 @@ function startApp(){
     else{cw.classList.add("hidden");cbtn.classList.remove("active")}
     CV.init();Render.all();CV.load();
     startAutoSave();
-    if(CFG.token&&CFG.owner&&CFG.repo)ghLoad();
   }catch(e){console.error("Init error:",e)}
 }
-
-/* Check auth on load */
-document.addEventListener("DOMContentLoaded",function(){
-  if(sessionStorage.getItem("planner_auth")==="1"){
-    document.getElementById("login-screen").style.display="none";
-    document.getElementById("main-app").classList.remove("hidden");
-    startApp();
-  }else{
-    document.getElementById("login-screen").style.display="flex";
-    document.getElementById("main-app").classList.add("hidden");
-    setTimeout(function(){document.getElementById("luser").focus()},100);
-  }
-});
+document.addEventListener("DOMContentLoaded",init);
 window.addEventListener("beforeunload",function(){CV.save();lsSave()});
 document.addEventListener("visibilitychange",function(){if(document.hidden){CV.save();lsSave()}});
 </script>
