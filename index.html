@@ -61,7 +61,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:.4;cursor:pointer}
 .dc.on{background:var(--grn)!important;border-color:var(--grnd)!important}
 .dc.on::after{content:"";display:block;width:7px;height:4px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px)}
 /* task row */
-.trow{display:flex;align-items:flex-start;gap:2px;padding:2px 3px;border-radius:8px;transition:background .15s,opacity .15s}
+.trow{padding:2px 3px;border-radius:8px;transition:background .15s,opacity .15s;border-bottom:1px dashed rgba(0,0,0,0.07)}
 .trow.autored{background:var(--row-red)!important}
 .trow.autogrn{background:var(--row-grn)!important}
 .trow.mred{background:var(--row-red)!important}
@@ -89,13 +89,44 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:.4;cursor:pointer}
 .sticky-hdr{position:-webkit-sticky;position:sticky;top:0;z-index:10;background:var(--card);padding:6px 4px;border-bottom:2px solid var(--bdr);box-shadow:0 1px 4px rgba(0,0,0,0.08)}
 .sticky-hdr .dh .dn{font-size:10px;font-weight:700}
 .sticky-hdr .dh .dt{font-size:13px;font-weight:800}
-.sticky-hdr .cl{font-size:10px;font-weight:800;letter-spacing:.5px;color:var(--txt);opacity:.7}
+.sticky-hdr .cl{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--txt);opacity:.8}
+/* dashed column separators in header */
+.sticky-hdr .dh{border-right:1px dashed rgba(0,0,0,0.1)}
+.sticky-hdr .cg-txt.cl{border-left:1px dashed rgba(0,0,0,0.12);padding-left:6px;margin-left:2px}
+/* grid column widths — shared by header and rows */
+.CG{display:grid;gap:0;align-items:start}
+.CG>div,.CG>input,.CG>textarea,.CG>button{box-sizing:border-box}
+.CG .cg-grip{width:20px}
+.CG .cg-day{width:32px}
+.CG .cg-txt{flex:none;min-width:70px}
+.CG .cg-who{width:90px}
+.CG .cg-ds{width:72px}
+.CG .cg-dd{width:72px}
+.CG .cg-note{flex:none;min-width:40px}
+.CG .cg-acts{width:82px}
+/* dashed border on data columns */
+.CG .cg-who,.CG .cg-ds,.CG .cg-dd,.CG .cg-note{border-left:1px dashed rgba(0,0,0,0.08)}
+.sticky-hdr .cg-who,.sticky-hdr .cg-ds,.sticky-hdr .cg-dd,.sticky-hdr .cg-note{border-left:1px dashed rgba(0,0,0,0.12)}
+.sticky-hdr .cg-acts{border-left:none}
 @media(max-width:640px){
   .dc,.dh{width:26px;min-width:26px}
   .dc{height:24px;border-radius:5px}
   .dc.on::after{width:5px;height:3px}
+  .CG .cg-day{width:26px}
+  .CG .cg-grip{width:18px}
+  .CG .cg-who{width:70px}
+  .CG .cg-ds,.CG .cg-dd{width:58px}
+  .CG .cg-txt{min-width:55px}
+  .CG .cg-note{min-width:32px}
+  .CG .cg-acts{width:68px}
   .dtb .tb{min-width:26px;height:22px}
   .dtb .tb .dt{font-size:9px}
+  /* mobile scroll wrapper */
+  .mob-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+  .mob-scroll .sticky-hdr{position:relative;top:auto;box-shadow:none;border-bottom:1px dashed rgba(0,0,0,0.1)}
+  .mob-scroll .tbl-inner{min-width:540px}
+  .mob-scroll .fi,.mob-scroll textarea.fi-area{font-size:14px}
+  .mob-scroll input[type="date"]{font-size:12px}
 }
 </style>
 </head>
@@ -303,13 +334,24 @@ var Render={
       h+='<div class="dh"><div class="dn"'+(isToday?' style="color:var(--grn)"':'')+'>'+DN[i]+'</div><div class="dt"'+(isToday?' style="color:var(--grn);font-size:15px"':'')+'>'+dates[i].getDate()+'</div></div>'}
     return h;
   },
+  colGridCols:function(){
+    var c='20px'; /* grip */
+    for(var i=0;i<7;i++){if(activeDays[i])c+=' 32px'}
+    c+=' minmax(70px,2fr'; /* Описание */
+    c+=') 90px'; /* Кто */
+    if(showCols.ds)c+=' 72px';
+    if(showCols.dd)c+=' 72px';
+    if(showCols.note)c+=' minmax(40px,1fr)';
+    c+=' 82px'; /* acts */
+    return c;
+  },
   colLabelsHTML:function(){
-    var h='<div style="min-width:80px;flex:2" class="cl">Описание</div>';
-    h+='<div style="width:100px;min-width:100px" class="cl">Кто</div>';
-    if(showCols.ds)h+='<div style="width:88px;min-width:88px" class="cl">Дата пост.</div>';
-    if(showCols.dd)h+='<div style="width:88px;min-width:88px" class="cl">Дата вып.</div>';
-    if(showCols.note)h+='<div style="min-width:50px;flex:1" class="cl">Прим.</div>';
-    h+='<div style="width:82px;min-width:82px"></div>';
+    var h='';
+    h+='<div class="cg-txt cl" style="font-weight:800">Описание</div>';
+    h+='<div class="cg-who cl">Кто</div>';
+    if(showCols.ds)h+='<div class="cg-ds cl">Дата пост.</div>';
+    if(showCols.dd)h+='<div class="cg-dd cl">Дата вып.</div>';
+    if(showCols.note)h+='<div class="cg-note cl">Прим.</div>';
     return h;
   },
   dayCellsHTML:function(item){var h="";for(var i=0;i<7;i++){if(!activeDays[i])continue;h+='<div class="dc'+(item.days[i]?" on":"")+'" data-di="'+i+'"></div>'}return h},
@@ -319,33 +361,34 @@ var Render={
     var hasText=item.text&&item.text.trim().length>0;
     var ac="";if(item.color==="red")ac=" mred";else if(item.color==="green")ac=" mgrn";else if(any)ac=" autogrn";else if(hasText)ac=" autored";
     var gc=any?" done-gray":"";
-    var h='<div class="trow'+ac+'" data-iid="'+item.id+'" data-bid="'+bid+'" data-isto="'+(isTO?"1":"0")+'">';
-    h+='<div class="grip" style="width:20px;min-width:20px;min-height:24px;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:11px;font-weight:bold;letter-spacing:-1px;opacity:.35" onpointerdown="Drag.start(event)">\u22EE\u22EE</div>';
+    var cols=this.colGridCols();
+    var h='<div class="trow CG'+ac+'" style="grid-template-columns:'+cols+'" data-iid="'+item.id+'" data-bid="'+bid+'" data-isto="'+(isTO?"1":"0")+'">';
+    h+='<div class="cg-grip grip" style="min-height:24px;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:11px;font-weight:bold;letter-spacing:-1px;opacity:.35" onpointerdown="Drag.start(event)">\u22EE\u22EE</div>';
     h+=this.dayCellsHTML(item);
-    h+='<textarea class="fi-area'+gc+'" style="min-width:80px;flex:2;font-weight:500" placeholder="\u0417\u0430\u0434\u0430\u0447\u0430\u2026" data-f="text" rows="1">'+esc(item.text)+'</textarea>';
-    h+='<input type="text" class="fi'+gc+'" style="width:100px;min-width:100px" placeholder="\u2014" data-f="by" value="'+esc(item.by)+'">';
-    if(showCols.ds)h+='<input type="date" class="fi" style="width:88px;min-width:88px" data-f="ds" value="'+esc(item.ds)+'">';
-    if(showCols.dd)h+='<input type="date" class="fi" style="width:88px;min-width:88px" data-f="dd" value="'+esc(item.dd)+'">';
-    if(showCols.note)h+='<textarea class="fi-area'+gc+'" style="min-width:50px;flex:1" placeholder="\u2026" data-f="note" rows="1">'+esc(item.note)+'</textarea>';
-    h+='<div style="width:82px;min-width:82px;display:flex;align-items:flex-start;gap:1px;padding-top:1px">';
+    h+='<textarea class="cg-txt fi-area'+gc+'" style="font-weight:500" placeholder="\u0417\u0430\u0434\u0430\u0447\u0430\u2026" data-f="text" rows="1">'+esc(item.text)+'</textarea>';
+    h+='<div class="cg-who"><input type="text" class="fi'+gc+'" placeholder="\u2014" data-f="by" value="'+esc(item.by)+'"></div>';
+    if(showCols.ds)h+='<div class="cg-ds"><input type="date" class="fi" data-f="ds" value="'+esc(item.ds)+'"></div>';
+    if(showCols.dd)h+='<div class="cg-dd"><input type="date" class="fi" data-f="dd" value="'+esc(item.dd)+'"></div>';
+    if(showCols.note)h+='<div class="cg-note"><textarea class="fi-area'+gc+'" placeholder="\u2026" data-f="note" rows="1">'+esc(item.note)+'</textarea></div>';
+    h+='<div class="cg-acts" style="display:flex;align-items:flex-start;gap:1px;padding-top:1px">';
     h+=this.colorBtnsHTML(item.color);
     h+='<button class="abtn" style="color:var(--acc)" data-act="fwd">\u2192</button>';
     h+='<button class="abtn" style="color:var(--mut)" data-act="del">\u2715</button>';
     h+="</div></div>";return h;
   },
   tableHTML:function(items,bid,isTO,addFn){
-    var h='<div style="min-width:700px">';
-    /* sticky header with add button */
-    h+='<div class="sticky-hdr flex items-center gap-[3px]">';
-    h+='<div style="width:20px;min-width:20px"></div>';
+    var cols=this.colGridCols();
+    var h='<div class="mob-scroll"><div class="tbl-inner" style="min-width:700px">';
+    h+='<div class="sticky-hdr CG" style="grid-template-columns:'+cols+'">';
+    h+='<div></div>';
     h+=this.colHdrHTML();
     h+=this.colLabelsHTML();
     if(addFn){
-      h+='<button onclick="'+addFn+'" class="ml-auto px-2 py-1 rounded-lg text-white text-[11px] font-bold notap whitespace-nowrap" style="background:var(--grn);flex-shrink:0">+ Добавить</button>';
+      h+='<button onclick="'+addFn+'" class="cg-acts ml-auto px-2 py-1 rounded-lg text-white text-[11px] font-bold notap whitespace-nowrap" style="background:var(--grn)">+ Добавить</button>';
     }
     h+="</div>";
     for(var i=0;i<items.length;i++)h+=this.rowHTML(items[i],bid,isTO);
-    h+="</div>";return h;
+    h+="</div></div>";return h;
   },
   to:function(){
     var w=getWeek(curK()),el=document.getElementById("to");
@@ -365,7 +408,7 @@ var Render={
       if(!cl){
         h+='<div class="p-2">';
         h+=this.tableHTML(block.items,block.id,false,"App.addItem('"+block.id+"')");
-        h+='<button onclick="App.addItem(\''+block.id+"\')\" class=\"w-full py-1.5 mt-1 rounded-lg text-[11px] font-medium notap\" style=\"color:var(--mut);border:1.5px dashed var(--bdr)\">+ Добавить задачу</button></div>";
+        h+='<button onclick="App.addItem(\''+block.id+'\')\" class=\"w-full py-1.5 mt-1 rounded-lg text-[11px] font-medium notap\" style=\"color:var(--mut);border:1.5px dashed var(--bdr)\">+ Добавить задачу</button></div>';
       }
       h+="</div>";
     }
