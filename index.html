@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#f9f6f0">
 <meta name="format-detection" content="telephone=no">
 <title>Планер</title>
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
 :root{
   --bg:#f9f6f0;--card:#fffefb;--card2:#fff9f0;--bdr:#e8e4db;
@@ -86,7 +86,7 @@ input[type="date"]::-webkit-calendar-picker-indicator{opacity:.4;cursor:pointer}
 .nb:hover{border-color:var(--grn)}
 .nb.active{background:var(--grn);color:#fff;border-color:var(--grn)}
 /* sticky header inside scroll container */
-.sticky-hdr{position:sticky;top:0;z-index:10;background:var(--card);padding:6px 4px;border-bottom:2px solid var(--bdr);box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.sticky-hdr{position:-webkit-sticky;position:sticky;top:0;z-index:10;background:var(--card);padding:6px 4px;border-bottom:2px solid var(--bdr);box-shadow:0 1px 4px rgba(0,0,0,0.08)}
 .sticky-hdr .dh .dn{font-size:10px;font-weight:700}
 .sticky-hdr .dh .dt{font-size:13px;font-weight:800}
 .sticky-hdr .cl{font-size:10px;font-weight:800;letter-spacing:.5px;color:var(--txt);opacity:.7}
@@ -297,8 +297,10 @@ var Render={
     cel.innerHTML=ch;
   },
   colHdrHTML:function(){
-    var dates=weekDates(),h="";
-    for(var i=0;i<7;i++){if(!activeDays[i])continue;h+='<div class="dh"><div class="dn">'+DN[i]+'</div><div class="dt">'+dates[i].getDate()+"</div></div>"}
+    var dates=weekDates(),h="",td=new Date();td.setHours(0,0,0,0);
+    for(var i=0;i<7;i++){if(!activeDays[i])continue;
+      var isToday=dates[i].getTime()===td.getTime();
+      h+='<div class="dh"><div class="dn"'+(isToday?' style="color:var(--grn)"':'')+'>'+DN[i]+'</div><div class="dt"'+(isToday?' style="color:var(--grn);font-size:15px"':'')+'>'+dates[i].getDate()+'</div></div>'}
     return h;
   },
   colLabelsHTML:function(){
@@ -331,13 +333,16 @@ var Render={
     h+='<button class="abtn" style="color:var(--mut)" data-act="del">\u2715</button>';
     h+="</div></div>";return h;
   },
-  tableHTML:function(items,bid,isTO,extraClass){
+  tableHTML:function(items,bid,isTO,addFn){
     var h='<div style="min-width:700px">';
-    /* sticky header */
+    /* sticky header with add button */
     h+='<div class="sticky-hdr flex items-center gap-[3px]">';
     h+='<div style="width:20px;min-width:20px"></div>';
     h+=this.colHdrHTML();
     h+=this.colLabelsHTML();
+    if(addFn){
+      h+='<button onclick="'+addFn+'" class="ml-auto px-2 py-1 rounded-lg text-white text-[11px] font-bold notap whitespace-nowrap" style="background:var(--grn);flex-shrink:0">+ Добавить</button>';
+    }
     h+="</div>";
     for(var i=0;i<items.length;i++)h+=this.rowHTML(items[i],bid,isTO);
     h+="</div>";return h;
@@ -345,8 +350,7 @@ var Render={
   to:function(){
     var w=getWeek(curK()),el=document.getElementById("to");
     var h='<div class="rounded-2xl p-2" style="background:linear-gradient(135deg,var(--to1),var(--to2));border:1.5px solid var(--tob);box-shadow:var(--shd)">';
-    h+='<div class="flex items-center justify-end mb-1"><button onclick="App.addTOItem()" class="text-[11px] px-2 py-1 rounded-lg text-white font-semibold notap" style="background:var(--grn)">+ Добавить</button></div>';
-    h+=this.tableHTML(w.to,"",true);
+    h+=this.tableHTML(w.to,"",true,"App.addTOItem()");
     h+="</div>";el.innerHTML=h;
   },
   blocks:function(){
@@ -360,7 +364,7 @@ var Render={
       h+='<button class="abtn" style="color:var(--mut)" onclick="event.stopPropagation();App.delBlock(\''+block.id+'\')">\u2715</button></div>';
       if(!cl){
         h+='<div class="p-2">';
-        h+=this.tableHTML(block.items,block.id,false);
+        h+=this.tableHTML(block.items,block.id,false,"App.addItem('"+block.id+"')");
         h+='<button onclick="App.addItem(\''+block.id+"\')\" class=\"w-full py-1.5 mt-1 rounded-lg text-[11px] font-medium notap\" style=\"color:var(--mut);border:1.5px dashed var(--bdr)\">+ Добавить задачу</button></div>";
       }
       h+="</div>";
